@@ -148,6 +148,7 @@ shinyServer(function(input, output, session) {
        
        
      }
+     action<-eventReactive(input$submit,{
      for (i in 1:6) {
        #x:日付、y:日数
        date<-lubridate::ymd(input$z)-input$w*(7-i)
@@ -168,6 +169,8 @@ shinyServer(function(input, output, session) {
           width = width,
           height = height,
           alt = "This is alternate text")
+     })
+     action()
    }, deleteFile = TRUE)
 
 })
