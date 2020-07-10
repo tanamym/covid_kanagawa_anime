@@ -32,8 +32,11 @@ shinyUI(fluidPage(
         sidebarPanel(
                      h4("アニメーションの設定"),
                      dateInput("z",label = h5("アニメーションが終わる日付を入力"),value = Sys.Date()),
-                     numericInput("w",label = h5("アニメーションの日数の間隔を入力"),value="5"),
-                     actionButton("submit", "描画")
+                     numericInput("w",label = h5("累積日数を入力"),value="7"),
+                     numericInput("x",label = h5("アニメーションの日数の間隔を入力"),value="3"),
+                     actionButton("submit", "描画"),
+                     h5("保存ボタンは動きません"),
+                     actionButton("submit2", "保存")
                      
                      ),
         

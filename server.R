@@ -149,15 +149,13 @@ shinyServer(function(input, output, session) {
        
      }
      action<-eventReactive(input$submit,{
-     for (i in 1:6) {
-       #x:日付、y:日数
-       date<-lubridate::ymd(input$z)-input$w*(7-i)
-       date2<-lubridate::ymd(input$z)-input$w*(6-i)
-
-       map<-l1(date,date2)
+      for (i in 1:6) {
+        date<-lubridate::ymd(input$z)-input$x*(6-i)
+       date2<-lubridate::ymd(input$z)-input$w-input$x*(6-i)
+       map<-l1(date2,date)
        mapshot(map, file =paste0("map_", i, ".png"))
-       
-     }
+      }
+      
      file_names <- list.files(pattern = "map_\\d+.png$", full.names = TRUE)
      image_read(file_names) %>%
        image_animate(fps = 1) %>%
