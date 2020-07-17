@@ -34,9 +34,11 @@ shinyUI(fluidPage(
                      dateInput("z",label = h5("アニメーションが終わる日付を入力"),value = Sys.Date()),
                      numericInput("w",label = h5("累積日数を入力"),value="7"),
                      numericInput("x",label = h5("アニメーションの日数の間隔を入力"),value="3"),
-                     actionButton("submit", "描画"),
-                     h5("保存ボタンは動きません"),
-                     actionButton("submit2", "保存")
+                     textInput("text",label = h5("保存先を入力してください"),value="C:/"),
+                     h6("注意:保存先の最後には/を入力してください。また\\ではなく/を入力してください。"),
+                     actionButton("submit", "描画&保存"),
+                     
+                    
                      
                      ),
         

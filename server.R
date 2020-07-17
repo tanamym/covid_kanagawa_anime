@@ -119,9 +119,7 @@ shinyServer(function(input, output, session) {
     jinko<-read.csv("jinko.csv")
     jinko<-data.frame(jinko)
 
-    
-   output$anime<-renderImage({
-     l1=function(a,b){
+    l1=function(a,b){
        #集計
        data7.1<-data7%>%
          filter(確定日>=a,確定日<=b)%>%
@@ -147,7 +145,10 @@ shinyServer(function(input, output, session) {
          )%>%addControl(tags$div(HTML(paste(a,b,sep = "~")))  , position = "topright")
        
        
-     }
+    }
+    
+   output$anime<-renderImage({
+     
      action<-eventReactive(input$submit,{
       for (i in 1:6) {
         date<-lubridate::ymd(input$z)-input$x*(6-i)
@@ -157,6 +158,9 @@ shinyServer(function(input, output, session) {
       }
       
      file_names <- list.files(pattern = "map_\\d+.png$", full.names = TRUE)
+     image_read(file_names) %>%
+       image_animate(fps = 1) %>%
+       image_write(paste0(input$text,"output.gif"))
      image_read(file_names) %>%
        image_animate(fps = 1) %>%
        image_write("output.gif")
@@ -169,6 +173,11 @@ shinyServer(function(input, output, session) {
           alt = "This is alternate text")
      })
      action()
+     
+     
    }, deleteFile = TRUE)
-
+   
+   
+   
+   
 })
