@@ -68,7 +68,9 @@ shinyServer(function(input, output, session) {
       mutate(年代 = str_replace(年代,"代","")) %>%
       mutate(居住市区町村 = str_replace(居住市区町村,"神奈川県",""))
     kanagawa<-read.csv("kanagawa2.csv") %>%
-      select(-X,-備考)
+      select(-X,-備考)%>%
+      filter(!居住市区町村%in%c("横浜市","横須賀市","相模原市","川崎市",
+                          "藤沢市"))
     kanagawa2<-rbind(kanagawa,patient) %>%
       mutate(受診都道府県 ="神奈川県",
                    居住都道府県="神奈川県"
@@ -80,10 +82,30 @@ shinyServer(function(input, output, session) {
     kanagawa2<-
       left_join(kanagawa2,xy,by="居住市区町村") %>%
       mutate(確定日=as.Date(確定日))
+    kawasaki<-
+      read.csv("kawasaki.csv") %>%
+      select(-X,番号,番号2)%>%
+      mutate(確定日=as.Date(確定日))
     
-    data<-bind_rows(data,kanagawa2)
+    data<-bind_rows(data,kanagawa2,kawasaki)
     
-    
+    date<-
+      kawasaki%>%
+      data.frame()%>%
+      arrange(desc(確定日))%>%
+      distinct(確定日)
+    output$date1<-
+      renderUI({
+        dateInput("z1",
+                  label = h5("アニメーションの開始日を入力"),
+                  max = date[1,1],value = date[1,1])
+      })
+    output$date2<-
+      renderUI({
+        dateInput("z2",
+                  label = h5("アニメーションの終了日を入力"),
+                  max = date[1,1],value = date[1,1])
+      })
     #data$確定日 <- lubridate::mdy(data$確定日)
     data$発症日 <- lubridate::mdy(data$発症日)
     data1<-data%>%
@@ -119,9 +141,14 @@ shinyServer(function(input, output, session) {
     #居住市区町村が川崎市以外で""ではない市区町村
     data5.5<-data1%>%
         filter(居住市区町村!=""&居住市区町村!="川崎市")
-
+    #川崎市NA
+    data5.6<-data1%>%
+      filter(居住市区町村=="川崎市",is.na(備考))
     #data5.1~data5.5まで結合
-    data6<-bind_rows(data5.1,data5.2,data5.3,data5.4,data5.5)
+    
+    data6<-bind_rows(data5.1,data5.2,data5.3,data5.4,data5.5,data5.6)
+    #data5.1~data5.5まで結合
+    #data6<-bind_rows(data5.1,data5.2,data5.3,data5.4,data5.5)
     #居住市区町村と備考と管内を一つにまとめたい
     #居住市区町村""
     data6.1<-data6%>%
@@ -161,7 +188,8 @@ shinyServer(function(input, output, session) {
          mutate(count_j=count/人口*100000)
        leaflet(jinko3) %>% addTiles() %>%
          addProviderTiles(providers$CartoDB.Positron) %>%
-         setView(lng=139.4025,lat=35.4478,zoom=11)%>%
+         #setView(lng=139.4025,lat=35.4478,zoom=10)%>%
+         fitBounds(lng1=139.124343, lat1=35.117843, lng2=139.652899, lat2=35.665052)%>%
          addCircleMarkers(~X, ~Y, stroke=FALSE,
                           radius =sqrt(jinko3$count_j)*10,
                           label = ~htmlEscape(居住市区町村及び管内),
@@ -178,19 +206,23 @@ shinyServer(function(input, output, session) {
     }
     
    output$anime<-renderImage({
-     
+     num<-
+         as.numeric(lubridate::ymd(input$z2)-lubridate::ymd(input$z1))
+       num2<-
+         num%/%input$x
      action<-eventReactive(input$submit,{
-      for (i in 1:16) {
-        date<-lubridate::ymd(input$z)-input$x*(16-i)
-       date2<-lubridate::ymd(input$z)-input$w-input$x*(16-i)
+       
+      for (i in 1:num2) {
+        date<-lubridate::ymd(input$z2)-input$x*(num2-i)
+       date2<-lubridate::ymd(input$z2)-input$w-input$x*(num2-i)+1
        map<-l1(date2,date)
-       mapshot(map, file =paste0("map_", i, ".png"))
+       mapshot(map, file =paste0("map_", formatC(i,width=2,flag="0"), ".png"))
       }
       
      file_names <- list.files(pattern = "map_\\d+.png$", full.names = TRUE)
-     image_read(file_names) %>%
-       image_animate(fps = 1) %>%
-       image_write(paste0(input$text,"output.gif"))
+     # image_read(file_names) %>%
+     #   image_animate(fps = 1) %>%
+     #   image_write(paste0(input$text,"output.gif"))
      image_read(file_names) %>%
        image_animate(fps = 1) %>%
        image_write("output.gif")
@@ -207,7 +239,30 @@ shinyServer(function(input, output, session) {
      
    }, deleteFile = TRUE)
    
-   
-   
+   output$downloadData <- downloadHandler(
+     filename = "covid.gif",
+     contentType = 'image/gif',
+     content = function(file){
+       for (i in 1:3) {
+         date<-lubridate::ymd(input$z)-input$x*(3-i)
+         date2<-lubridate::ymd(input$z)-input$w-input$x*(3-i)
+         map<-l1(date2,date)
+         mapshot(map, file =paste0("map_", formatC(i,width=2,flag="0"), ".png"))
+       }
+       
+       file_names <- list.files(pattern = "map_\\d+.png$", full.names = TRUE)
+
+       g1<-image_read(file_names) %>%
+         image_animate(fps = 1)%>%
+         image_write(file)
+
+
+     }
+     
+   )
+   output$text<-
+     renderText({
+       as.numeric(lubridate::ymd(input$z2)-lubridate::ymd(input$z1))%/%input$x
+     })
    
 })
