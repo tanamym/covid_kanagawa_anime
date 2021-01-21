@@ -243,9 +243,13 @@ shinyServer(function(input, output, session) {
      filename = "covid.gif",
      contentType = 'image/gif',
      content = function(file){
+       num<-
+         as.numeric(lubridate::ymd(input$z2)-lubridate::ymd(input$z1))
+       num2<-
+         num%/%input$x
        for (i in 1:3) {
-         date<-lubridate::ymd(input$z)-input$x*(3-i)
-         date2<-lubridate::ymd(input$z)-input$w-input$x*(3-i)
+         date<-lubridate::ymd(input$z2)-input$x*(3-i)
+         date2<-lubridate::ymd(input$z2)-input$w-input$x*(3-i)+1
          map<-l1(date2,date)
          mapshot(map, file =paste0("map_", formatC(i,width=2,flag="0"), ".png"))
        }
