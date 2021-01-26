@@ -247,12 +247,13 @@ shinyServer(function(input, output, session) {
          as.numeric(lubridate::ymd(input$z2)-lubridate::ymd(input$z1))
        num2<-
          num%/%input$x
-       for (i in 1:3) {
-         date<-lubridate::ymd(input$z2)-input$x*(3-i)
-         date2<-lubridate::ymd(input$z2)-input$w-input$x*(3-i)+1
+       for (i in 1:num2) {
+         date<-lubridate::ymd(input$z2)-input$x*(num2-i)
+         date2<-lubridate::ymd(input$z2)-input$w-input$x*(num2-i)+1
          map<-l1(date2,date)
          mapshot(map, file =paste0("map_", formatC(i,width=2,flag="0"), ".png"))
        }
+       
        
        file_names <- list.files(pattern = "map_\\d+.png$", full.names = TRUE)
 
