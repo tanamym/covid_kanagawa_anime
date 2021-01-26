@@ -191,11 +191,11 @@ shinyServer(function(input, output, session) {
          #setView(lng=139.4025,lat=35.4478,zoom=10)%>%
          fitBounds(lng1=139.124343, lat1=35.117843, lng2=139.652899, lat2=35.665052)%>%
          addCircleMarkers(~X, ~Y, stroke=FALSE,
-                          radius =sqrt(jinko3$count_j)*10,
+                          radius =sqrt(jinko3$count_j)*input$en,
                           label = ~htmlEscape(居住市区町村及び管内),
                           labelOptions = labelOptions(direction = 'auto',noHide = T, textOnly = TRUE,textsize = "10px"))%>%
          addCircleMarkers(~X, ~Y, stroke=FALSE,
-                          radius =sqrt(jinko3$count_j)*10,
+                          radius =sqrt(jinko3$count_j)*input$en,
                           label = ~htmlEscape(round(count_j,digits = 4)),
                           labelOptions = labelOptions(direction = 'bottom',noHide = T, textOnly = TRUE,textsize = "10px")
                           
