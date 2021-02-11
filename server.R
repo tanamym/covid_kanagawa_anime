@@ -78,7 +78,13 @@ shinyServer(function(input, output, session) {
     
     xy<-read.csv("xy.csv") %>%
       select(-X.1)
-    
+    chigasaki<-
+      read.csv("chigasaki.csv")%>%
+      mutate(受診都道府県 ="神奈川県",
+                   居住都道府県="神奈川県"
+      )%>%
+      mutate(確定日=as.Date(確定日))%>%
+      left_join(xy,by="居住市区町村")
     kanagawa2<-
       left_join(kanagawa2,xy,by="居住市区町村") %>%
       mutate(確定日=as.Date(確定日))
@@ -87,7 +93,7 @@ shinyServer(function(input, output, session) {
       select(-X,番号,番号2)%>%
       mutate(確定日=as.Date(確定日))
     
-    data<-bind_rows(data,kanagawa2,kawasaki)
+    data<-bind_rows(data,kanagawa2,kawasaki,chigasaki)
     
     date<-
       kawasaki%>%
