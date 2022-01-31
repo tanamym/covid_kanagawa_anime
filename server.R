@@ -101,7 +101,7 @@ shinyServer(function(input, output, session) {
        data7.1<-data7%>%
          filter(Fixed_Date>=a,Fixed_Date<=b)%>%
          group_by(Residential_City,X,Y)%>%
-         summarise(count=n())%>%
+         summarise(count=sum(n))%>%
          filter(X>0,Y>0)
        jinko2<-left_join(data7.1,jinko,by=c("Residential_City"="City"))
        jinko3<-jinko2%>%
